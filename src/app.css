@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: oklch(97% 0.02 250);
+  --color-brand-100: oklch(93% 0.05 250);
+  --color-brand-200: oklch(86% 0.09 250);
+  --color-brand-300: oklch(76% 0.13 250);
+  --color-brand-400: oklch(66% 0.17 250);
+  --color-brand-500: oklch(57% 0.2 250);
+  --color-brand-600: oklch(49% 0.22 250);
+  --color-brand-700: oklch(41% 0.2 250);
+  --color-brand-800: oklch(33% 0.16 250);
+  --color-brand-900: oklch(25% 0.12 250);
+
+  --color-danger-500: oklch(57% 0.22 25);
+  --color-danger-600: oklch(49% 0.24 25);
+  --color-success-500: oklch(57% 0.18 145);
+  --color-warning-500: oklch(72% 0.2 85);
+
+  --radius-card: 0.75rem;
+  --radius-btn: 0.5rem;
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background-color: oklch(97% 0 0);
+    color: oklch(15% 0 0);
+    line-height: 1.5;
+  }
+
+  .dark body {
+    background-color: oklch(12% 0 0);
+    color: oklch(93% 0 0);
+  }
+
+  input, textarea, select, button {
+    font-family: inherit;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
