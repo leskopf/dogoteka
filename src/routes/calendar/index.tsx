@@ -50,12 +50,10 @@ function CalendarPage() {
               fetchEvents(start, end)
             }}
             dayCellContent={(arg) => {
-              const dateStr = arg.date.toISOString().split('T')[0]
-              const count = dogsOnDate(stays, dateStr)
+              const count = dogsOnDate(stays, arg.dateStr)
               const over = count > maxCapacity
               return (
-                <div className="flex flex-col items-end gap-0.5 w-full">
-                  <span>{arg.dayNumberText}</span>
+                <div className="flex items-center justify-end gap-1 w-full">
                   {count > 0 && (
                     <span
                       className={`text-xs font-medium px-1 rounded ${
@@ -67,6 +65,7 @@ function CalendarPage() {
                       {count}/{maxCapacity}
                     </span>
                   )}
+                  <span>{arg.dayNumberText}</span>
                 </div>
               )
             }}
