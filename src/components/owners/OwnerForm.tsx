@@ -21,8 +21,8 @@ export function OwnerForm({ defaultValues, onSubmit, submitting }: OwnerFormProp
     defaultValues: {
       first_name: defaultValues?.first_name ?? '',
       last_name: defaultValues?.last_name ?? '',
-      phone: defaultValues?.phone ?? '',
-      phone_emergency: defaultValues?.phone_emergency ?? '',
+      phone: defaultValues?.phone ?? '+420 ',
+      phone_emergency: defaultValues?.phone_emergency ?? '+420 ',
       email: defaultValues?.email ?? '',
       address: defaultValues?.address ?? '',
       is_recurring: defaultValues?.is_recurring ?? false,
