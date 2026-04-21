@@ -30,12 +30,16 @@ export function StayForm({ defaultValues, onSubmit, submitting }: StayFormProps)
     },
   })
 
-  const dogOptions = dogs.map((d) => ({
-    value: d.id,
-    label: d.owners
-      ? `${d.name} (${d.owners.first_name} ${d.owners.last_name})`
-      : d.name,
-  }))
+  const dogOptions = dogs.map((d) => {
+    const parts = [d.breed, d.name].filter(Boolean).join(' — ')
+    const owner = d.owners
+      ? `${d.owners.first_name} ${d.owners.last_name}`
+      : null
+    return {
+      value: d.id,
+      label: owner ? `${parts} (${owner})` : parts,
+    }
+  })
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
