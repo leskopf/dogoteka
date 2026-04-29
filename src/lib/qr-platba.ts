@@ -6,8 +6,9 @@ export function buildSpdString(params: {
   invoiceNumber: string
 }): string {
   const am = params.amount.toFixed(2)
+  const vs = params.invoiceNumber.replace(/\D/g, '').slice(0, 10)
   const msg = `Faktura ${params.invoiceNumber}`.slice(0, 60)
-  return `SPD*1.0*ACC:${params.iban}*AM:${am}*CC:CZK*MSG:${msg}*X-VS:${params.invoiceNumber}`
+  return `SPD*1.0*ACC:${params.iban}*AM:${am}*CC:CZK*MSG:${msg}*X-VS:${vs}`
 }
 
 export async function generateQrDataUrl(spdString: string): Promise<string> {

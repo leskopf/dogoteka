@@ -25,7 +25,7 @@ export function useFinance() {
     let pendingFinals = 0
 
     for (const p of payments) {
-      if (p.paid_at === null) {
+      if (!p.paid_at) {
         if (p.type === 'deposit') pendingDeposits++
         else if (p.type === 'final') pendingFinals++
       } else {

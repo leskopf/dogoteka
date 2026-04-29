@@ -17,7 +17,8 @@ export function useSettings() {
 
   const update = async (data: Partial<Settings>) => {
     if (!settings) return
-    await supabase.from('settings').update(data).eq('id', settings.id)
+    const { error } = await supabase.from('settings').update(data).eq('id', settings.id)
+    if (error) throw error
     await fetch()
   }
 

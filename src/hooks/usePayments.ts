@@ -56,13 +56,18 @@ export function usePaymentsForStay(stayId: string) {
   }
 
   const updatePayment = async (id: string, data: PaymentUpdate): Promise<void> => {
-    await supabase.from('payments').update(data).eq('id', id)
+    const { error } = await supabase.from('payments').update(data).eq('id', id)
+    if (error) throw error
     await fetch()
   }
 
   const deletePayment = async (id: string): Promise<void> => {
+    const item = payments.find((p) => p.id === id)
     setPayments((prev) => prev.filter((p) => p.id !== id))
-    await supabase.from('payments').delete().eq('id', id)
+    const { error } = await supabase.from('payments').delete().eq('id', id)
+    if (error && item) {
+      setPayments((prev) => [...prev, item].sort((a, b) => a.created_at.localeCompare(b.created_at)))
+    }
   }
 
   return { payments, loading, refetch: fetch, addPayment, updatePayment, deletePayment }
