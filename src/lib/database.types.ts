@@ -289,16 +289,84 @@ export type Database = {
         Row: {
           id: number
           max_capacity: number
+          issuer_name: string | null
+          issuer_address: string | null
+          issuer_ico: string | null
+          issuer_dic: string | null
+          bank_account: string | null
+          bank_iban: string | null
+          bank_name: string | null
+          default_rate_czk: number | null
+          invoice_counter: number | null
         }
         Insert: {
           id?: number
           max_capacity?: number
+          issuer_name?: string | null
+          issuer_address?: string | null
+          issuer_ico?: string | null
+          issuer_dic?: string | null
+          bank_account?: string | null
+          bank_iban?: string | null
+          bank_name?: string | null
+          default_rate_czk?: number | null
+          invoice_counter?: number | null
         }
         Update: {
           id?: number
           max_capacity?: number
+          issuer_name?: string | null
+          issuer_address?: string | null
+          issuer_ico?: string | null
+          issuer_dic?: string | null
+          bank_account?: string | null
+          bank_iban?: string | null
+          bank_name?: string | null
+          default_rate_czk?: number | null
+          invoice_counter?: number | null
         }
         Relationships: []
+      }
+      payments: {
+        Row: {
+          id: string
+          stay_id: string
+          type: 'deposit' | 'final'
+          amount: number
+          paid_at: string | null
+          invoice_number: string | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          stay_id: string
+          type: 'deposit' | 'final'
+          amount: number
+          paid_at?: string | null
+          invoice_number?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          stay_id?: string
+          type?: 'deposit' | 'final'
+          amount?: number
+          paid_at?: string | null
+          invoice_number?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'payments_stay_id_fkey'
+            columns: ['stay_id']
+            isOneToOne: false
+            referencedRelation: 'stays'
+            referencedColumns: ['id']
+          }
+        ]
       }
     }
     Views: {
@@ -324,6 +392,10 @@ export type Database = {
           created_at: string
         }[]
       }
+      increment_invoice_counter: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
@@ -343,3 +415,4 @@ export type DogPhoto = Database['public']['Tables']['dog_photos']['Row']
 export type ShareToken = Database['public']['Tables']['share_tokens']['Row']
 export type AuditLog = Database['public']['Tables']['audit_log']['Row']
 export type Settings = Database['public']['Tables']['settings']['Row']
+export type Payment = Database['public']['Tables']['payments']['Row']
