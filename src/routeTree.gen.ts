@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StaysIndexRouteImport } from './routes/stays/index'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as OwnersIndexRouteImport } from './routes/owners/index'
 import { Route as DogsIndexRouteImport } from './routes/dogs/index'
 import { Route as CalendarIndexRouteImport } from './routes/calendar/index'
@@ -31,6 +33,16 @@ const LoginRoute = LoginRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaysIndexRoute = StaysIndexRouteImport.update({
+  id: '/stays/',
+  path: '/stays/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OwnersIndexRoute = OwnersIndexRouteImport.update({
@@ -101,6 +113,8 @@ export interface FileRoutesByFullPath {
   '/calendar/': typeof CalendarIndexRoute
   '/dogs/': typeof DogsIndexRoute
   '/owners/': typeof OwnersIndexRoute
+  '/settings/': typeof SettingsIndexRoute
+  '/stays/': typeof StaysIndexRoute
   '/dogs/$dogId/edit': typeof DogsDogIdEditRoute
   '/dogs/$dogId/': typeof DogsDogIdIndexRoute
 }
@@ -116,6 +130,8 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarIndexRoute
   '/dogs': typeof DogsIndexRoute
   '/owners': typeof OwnersIndexRoute
+  '/settings': typeof SettingsIndexRoute
+  '/stays': typeof StaysIndexRoute
   '/dogs/$dogId/edit': typeof DogsDogIdEditRoute
   '/dogs/$dogId': typeof DogsDogIdIndexRoute
 }
@@ -132,6 +148,8 @@ export interface FileRoutesById {
   '/calendar/': typeof CalendarIndexRoute
   '/dogs/': typeof DogsIndexRoute
   '/owners/': typeof OwnersIndexRoute
+  '/settings/': typeof SettingsIndexRoute
+  '/stays/': typeof StaysIndexRoute
   '/dogs/$dogId/edit': typeof DogsDogIdEditRoute
   '/dogs/$dogId/': typeof DogsDogIdIndexRoute
 }
@@ -149,6 +167,8 @@ export interface FileRouteTypes {
     | '/calendar/'
     | '/dogs/'
     | '/owners/'
+    | '/settings/'
+    | '/stays/'
     | '/dogs/$dogId/edit'
     | '/dogs/$dogId/'
   fileRoutesByTo: FileRoutesByTo
@@ -164,6 +184,8 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/dogs'
     | '/owners'
+    | '/settings'
+    | '/stays'
     | '/dogs/$dogId/edit'
     | '/dogs/$dogId'
   id:
@@ -179,6 +201,8 @@ export interface FileRouteTypes {
     | '/calendar/'
     | '/dogs/'
     | '/owners/'
+    | '/settings/'
+    | '/stays/'
     | '/dogs/$dogId/edit'
     | '/dogs/$dogId/'
   fileRoutesById: FileRoutesById
@@ -195,6 +219,8 @@ export interface RootRouteChildren {
   CalendarIndexRoute: typeof CalendarIndexRoute
   DogsIndexRoute: typeof DogsIndexRoute
   OwnersIndexRoute: typeof OwnersIndexRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
+  StaysIndexRoute: typeof StaysIndexRoute
   DogsDogIdEditRoute: typeof DogsDogIdEditRoute
   DogsDogIdIndexRoute: typeof DogsDogIdIndexRoute
 }
@@ -213,6 +239,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stays/': {
+      id: '/stays/'
+      path: '/stays'
+      fullPath: '/stays/'
+      preLoaderRoute: typeof StaysIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/owners/': {
@@ -307,6 +347,8 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarIndexRoute: CalendarIndexRoute,
   DogsIndexRoute: DogsIndexRoute,
   OwnersIndexRoute: OwnersIndexRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
+  StaysIndexRoute: StaysIndexRoute,
   DogsDogIdEditRoute: DogsDogIdEditRoute,
   DogsDogIdIndexRoute: DogsDogIdIndexRoute,
 }
