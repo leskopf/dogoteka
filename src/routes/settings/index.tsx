@@ -57,7 +57,11 @@ function SettingsPage() {
 
   const onSubmit = async (values: SettingsFormValues) => {
     try {
-      await update(values)
+      // Transformuj prázdné stringy na null pro DB konzistenci
+      const sanitized = Object.fromEntries(
+        Object.entries(values).map(([k, v]) => [k, v === '' ? null : v])
+      ) as SettingsFormValues
+      await update(sanitized)
       toast.success('Nastavení uloženo')
     } catch {
       toast.error('Chyba při ukládání')
@@ -169,6 +173,7 @@ function SettingsPage() {
                 type="number"
                 min={0}
                 step="0.01"
+                hint="Používá se jako výchozí částka při vytváření zálohy nebo dofakturace"
                 error={errors.default_rate_czk?.message}
                 {...register('default_rate_czk')}
               />
@@ -185,7 +190,7 @@ function SettingsPage() {
                 label="Aktuální počítadlo faktur"
                 type="number"
                 min={0}
-                hint="Číslování pokračuje od této hodnoty. Změňte jen pokud potřebujete reset."
+                hint="Číslování pokračuje od této hodnoty. Nastavením na 0 se číslování restartuje od 1. Změňte jen pokud potřebujete reset."
                 error={errors.invoice_counter?.message}
                 {...register('invoice_counter')}
               />
