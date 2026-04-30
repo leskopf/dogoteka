@@ -38,6 +38,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
   const [formNotes, setFormNotes] = useState('')
   const [generating, setGenerating] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   const nights = Math.round(
     (new Date(dateTo).getTime() - new Date(dateFrom).getTime()) / 86400000,
@@ -56,25 +57,38 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
 
   const handleAddPayment = async () => {
     setSubmitting(true)
-    await addPayment({
-      stay_id: stayId,
-      type: addingType!,
-      amount: parseFloat(formAmount) || 0,
-      paid_at: formNotPaid ? null : formDate || null,
-      invoice_number: null,
-      notes: formNotes || null,
-    })
-    setAddingType(null)
-    setSubmitting(false)
+    try {
+      await addPayment({
+        stay_id: stayId,
+        type: addingType!,
+        amount: parseFloat(formAmount) || 0,
+        paid_at: formNotPaid ? null : formDate || null,
+        invoice_number: null,
+        notes: formNotes || null,
+      })
+      setAddingType(null)
+      setFormAmount('')
+      setFormDate('')
+      setFormNotPaid(false)
+      setFormNotes('')
+    } catch {
+      toast.error('Chyba při ukládání platby')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleGenerateInvoice = async (payment: Payment) => {
+    if (!settings) {
+      toast.error('Nastavení nejsou dostupná, načtěte stránku znovu')
+      return
+    }
     setGenerating(payment.id)
     try {
       const invoiceNumber = await generateInvoiceNumber()
       await updatePayment(payment.id, { invoice_number: invoiceNumber })
       let qrDataUrl: string | null = null
-      if (settings?.bank_iban) {
+      if (settings.bank_iban) {
         const spd = buildSpdString({
           iban: settings.bank_iban,
           amount: payment.amount,
@@ -88,7 +102,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
           stay={{ date_from: dateFrom, date_to: dateTo }}
           dogName={dogName}
           owner={owner}
-          settings={settings!}
+          settings={settings}
           qrDataUrl={qrDataUrl}
         />,
       ).toBlob()
@@ -96,22 +110,28 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
       const a = document.createElement('a')
       a.href = url
       a.download = `faktura-${invoiceNumber}.pdf`
+      document.body.appendChild(a)
       a.click()
+      document.body.removeChild(a)
       URL.revokeObjectURL(url)
       toast.success(`Faktura ${invoiceNumber} vygenerována`)
-      refetch()
     } catch {
       toast.error('Chyba při generování faktury')
     } finally {
+      refetch()
       setGenerating(null)
     }
   }
 
   const handleDownloadInvoice = async (payment: Payment) => {
+    if (!settings) {
+      toast.error('Nastavení nejsou dostupná, načtěte stránku znovu')
+      return
+    }
     setGenerating(payment.id)
     try {
       let qrDataUrl: string | null = null
-      if (settings?.bank_iban && payment.invoice_number) {
+      if (settings.bank_iban && payment.invoice_number) {
         const spd = buildSpdString({
           iban: settings.bank_iban,
           amount: payment.amount,
@@ -125,7 +145,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
           stay={{ date_from: dateFrom, date_to: dateTo }}
           dogName={dogName}
           owner={owner}
-          settings={settings!}
+          settings={settings}
           qrDataUrl={qrDataUrl}
         />,
       ).toBlob()
@@ -133,18 +153,28 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
       const a = document.createElement('a')
       a.href = url
       a.download = `faktura-${payment.invoice_number}.pdf`
+      document.body.appendChild(a)
       a.click()
+      document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch {
       toast.error('Chyba při stahování faktury')
     } finally {
+      refetch()
       setGenerating(null)
     }
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm('Smazat tuto platbu?')) return
-    await deletePayment(id)
+    setDeleting(id)
+    try {
+      await deletePayment(id)
+    } catch {
+      toast.error('Chyba při mazání platby')
+    } finally {
+      setDeleting(null)
+    }
   }
 
   const hasDeposit = payments.some((p) => p.type === 'deposit')
@@ -198,6 +228,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
                     variant="secondary"
                     size="sm"
                     loading={generating === payment.id}
+                    disabled={generating !== null}
                     onClick={() => handleDownloadInvoice(payment)}
                   >
                     Stáhnout
@@ -207,6 +238,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
                     variant="secondary"
                     size="sm"
                     loading={generating === payment.id}
+                    disabled={generating !== null}
                     onClick={() => handleGenerateInvoice(payment)}
                   >
                     Vygenerovat fakturu
@@ -216,6 +248,8 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
                   variant="ghost"
                   size="sm"
                   className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                  disabled={deleting === payment.id || generating !== null}
+                  loading={deleting === payment.id}
                   onClick={() => handleDelete(payment.id)}
                 >
                   Smazat
