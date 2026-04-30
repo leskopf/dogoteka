@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useStay } from '@/hooks/useStays'
 import { NoteTimeline } from '@/components/stays/NoteTimeline'
+import { PaymentPanel } from '@/components/stays/PaymentPanel'
 import { DogTagPill } from '@/components/dogs/DogTagPill'
 import { PageShell } from '@/components/layout/PageShell'
 import { Button } from '@/components/ui/Button'
@@ -130,6 +131,14 @@ function StayDetailPage() {
           <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Zápisky z pobytu</h2>
           <NoteTimeline notes={notes} onAdd={addNote} onDelete={deleteNote} />
         </div>
+
+        <PaymentPanel
+          stayId={stayId}
+          dateFrom={stay.date_from}
+          dateTo={stay.date_to}
+          dogName={dog?.name ?? ''}
+          owner={owner ? { first_name: owner.first_name, last_name: owner.last_name, address: owner.address } : null}
+        />
       </div>
     </PageShell>
   )
