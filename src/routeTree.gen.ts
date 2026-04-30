@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StaysIndexRouteImport } from './routes/stays/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as FinanceIndexRouteImport } from './routes/finance/index'
 import { Route as OwnersIndexRouteImport } from './routes/owners/index'
 import { Route as DogsIndexRouteImport } from './routes/dogs/index'
 import { Route as CalendarIndexRouteImport } from './routes/calendar/index'
@@ -43,6 +44,11 @@ const StaysIndexRoute = StaysIndexRouteImport.update({
 const SettingsIndexRoute = SettingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceIndexRoute = FinanceIndexRouteImport.update({
+  id: '/finance/',
+  path: '/finance/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OwnersIndexRoute = OwnersIndexRouteImport.update({
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/dogs/': typeof DogsIndexRoute
   '/owners/': typeof OwnersIndexRoute
   '/settings/': typeof SettingsIndexRoute
+  '/finance/': typeof FinanceIndexRoute
   '/stays/': typeof StaysIndexRoute
   '/dogs/$dogId/edit': typeof DogsDogIdEditRoute
   '/dogs/$dogId/': typeof DogsDogIdIndexRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/dogs': typeof DogsIndexRoute
   '/owners': typeof OwnersIndexRoute
   '/settings': typeof SettingsIndexRoute
+  '/finance': typeof FinanceIndexRoute
   '/stays': typeof StaysIndexRoute
   '/dogs/$dogId/edit': typeof DogsDogIdEditRoute
   '/dogs/$dogId': typeof DogsDogIdIndexRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/dogs/': typeof DogsIndexRoute
   '/owners/': typeof OwnersIndexRoute
   '/settings/': typeof SettingsIndexRoute
+  '/finance/': typeof FinanceIndexRoute
   '/stays/': typeof StaysIndexRoute
   '/dogs/$dogId/edit': typeof DogsDogIdEditRoute
   '/dogs/$dogId/': typeof DogsDogIdIndexRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/dogs/'
     | '/owners/'
     | '/settings/'
+    | '/finance/'
     | '/stays/'
     | '/dogs/$dogId/edit'
     | '/dogs/$dogId/'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/dogs'
     | '/owners'
     | '/settings'
+    | '/finance'
     | '/stays'
     | '/dogs/$dogId/edit'
     | '/dogs/$dogId'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/dogs/'
     | '/owners/'
     | '/settings/'
+    | '/finance/'
     | '/stays/'
     | '/dogs/$dogId/edit'
     | '/dogs/$dogId/'
@@ -220,6 +232,7 @@ export interface RootRouteChildren {
   DogsIndexRoute: typeof DogsIndexRoute
   OwnersIndexRoute: typeof OwnersIndexRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
+  FinanceIndexRoute: typeof FinanceIndexRoute
   StaysIndexRoute: typeof StaysIndexRoute
   DogsDogIdEditRoute: typeof DogsDogIdEditRoute
   DogsDogIdIndexRoute: typeof DogsDogIdIndexRoute
@@ -253,6 +266,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings/'
       preLoaderRoute: typeof SettingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/finance/': {
+      id: '/finance/'
+      path: '/finance'
+      fullPath: '/finance/'
+      preLoaderRoute: typeof FinanceIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/owners/': {
@@ -348,6 +368,7 @@ const rootRouteChildren: RootRouteChildren = {
   DogsIndexRoute: DogsIndexRoute,
   OwnersIndexRoute: OwnersIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
+  FinanceIndexRoute: FinanceIndexRoute,
   StaysIndexRoute: StaysIndexRoute,
   DogsDogIdEditRoute: DogsDogIdEditRoute,
   DogsDogIdIndexRoute: DogsDogIdIndexRoute,
