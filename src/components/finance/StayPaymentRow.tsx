@@ -1,15 +1,8 @@
 import { Link } from '@tanstack/react-router'
 import { Button } from '@/components/ui/Button'
 import { PaymentStatusBadge } from '@/components/finance/PaymentStatusBadge'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatCzk } from '@/lib/utils'
 import type { PaymentWithStay } from '@/hooks/useFinance'
-
-const formatCzk = (amount: number) =>
-  new Intl.NumberFormat('cs-CZ', {
-    style: 'currency',
-    currency: 'CZK',
-    minimumFractionDigits: 0,
-  }).format(amount)
 
 interface StayPaymentRowProps {
   payment: PaymentWithStay

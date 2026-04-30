@@ -76,18 +76,24 @@ export function usePaymentsForStay(stayId: string) {
 export function useAllPayments() {
   const [payments, setPayments] = useState<PaymentWithStay[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const fetch = useCallback(async () => {
     setLoading(true)
-    const { data } = await supabase
+    setError(null)
+    const { data, error: err } = await supabase
       .from('payments')
       .select('*, stays(id, date_from, date_to, dogs(id, name, owners(id, first_name, last_name)))')
       .order('created_at', { ascending: false })
-    setPayments((data ?? []) as PaymentWithStay[])
+    if (err) {
+      setError(err.message)
+    } else {
+      setPayments((data ?? []) as PaymentWithStay[])
+    }
     setLoading(false)
   }, [])
 
   useEffect(() => { fetch() }, [fetch])
 
-  return { payments, loading, refetch: fetch }
+  return { payments, loading, error, refetch: fetch }
 }

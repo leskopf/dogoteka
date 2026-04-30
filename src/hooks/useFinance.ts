@@ -12,7 +12,7 @@ export type FinanceSummary = {
 export type { PaymentWithStay }
 
 export function useFinance() {
-  const { payments, loading, refetch } = useAllPayments()
+  const { payments, loading, error, refetch } = useAllPayments()
 
   const summary = useMemo<FinanceSummary>(() => {
     const now = new Date()
@@ -42,5 +42,5 @@ export function useFinance() {
     return { totalThisMonth, totalThisYear, pendingDeposits, pendingFinals }
   }, [payments])
 
-  return { summary, payments, loading, refetch }
+  return { summary, payments, loading, error, refetch }
 }

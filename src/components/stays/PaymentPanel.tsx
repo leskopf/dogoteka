@@ -3,6 +3,7 @@ import { pdf } from '@react-pdf/renderer'
 import { toast } from 'sonner'
 import { usePaymentsForStay } from '@/hooks/usePayments'
 import { useSettings } from '@/hooks/useSettings'
+import { formatCzk } from '@/lib/utils'
 import { generateInvoiceNumber } from '@/lib/invoice-number'
 import { buildSpdString, generateQrDataUrl } from '@/lib/qr-platba'
 import { InvoicePDF } from '@/components/pdf/InvoicePDF'
@@ -18,13 +19,6 @@ interface PaymentPanelProps {
   dogName: string
   owner: { first_name: string; last_name: string; address?: string | null } | null
 }
-
-const formatCzk = (amount: number) =>
-  new Intl.NumberFormat('cs-CZ', {
-    style: 'currency',
-    currency: 'CZK',
-    minimumFractionDigits: 0,
-  }).format(amount)
 
 export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: PaymentPanelProps) {
   const { payments, loading, addPayment, updatePayment, deletePayment, refetch } =

@@ -4,8 +4,9 @@ import { PageShell } from '@/components/layout/PageShell'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { FinanceStatCard } from '@/components/finance/FinanceStatCard'
 import { StayPaymentRow } from '@/components/finance/StayPaymentRow'
+import { Button } from '@/components/ui/Button'
 import { useFinance } from '@/hooks/useFinance'
-import { cn } from '@/lib/utils'
+import { cn, formatCzk } from '@/lib/utils'
 
 export const Route = createFileRoute('/finance/')({
   component: FinancePage,
@@ -13,18 +14,11 @@ export const Route = createFileRoute('/finance/')({
 
 type FilterType = 'all' | 'paid' | 'unpaid'
 
-const formatCzk = (amount: number) =>
-  new Intl.NumberFormat('cs-CZ', {
-    style: 'currency',
-    currency: 'CZK',
-    minimumFractionDigits: 0,
-  }).format(amount)
-
 const cardClass =
   'rounded-[--radius-card] border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900'
 
 function FinancePage() {
-  const { summary, payments, loading } = useFinance()
+  const { summary, payments, loading, error, refetch } = useFinance()
   const [filter, setFilter] = useState<FilterType>('all')
 
   const filtered = useMemo(() => {
@@ -32,6 +26,18 @@ function FinancePage() {
     if (filter === 'unpaid') return payments.filter((p) => p.paid_at === null)
     return payments
   }, [payments, filter])
+
+  if (error) {
+    return (
+      <PageShell>
+        <div className="text-center py-16">
+          <span className="text-5xl">⚠️</span>
+          <p className="mt-4 text-gray-500 dark:text-gray-400">Nepodařilo se načíst data</p>
+          <Button className="mt-4" variant="secondary" onClick={refetch}>Zkusit znovu</Button>
+        </div>
+      </PageShell>
+    )
+  }
 
   if (loading) {
     return (

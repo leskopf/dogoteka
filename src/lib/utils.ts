@@ -56,3 +56,6 @@ export function getPublicPhotoUrl(storagePath: string): string {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
   return `${supabaseUrl}/storage/v1/object/public/dog-photos/${storagePath}`
 }
+
+export const formatCzk = (amount: number): string =>
+  new Intl.NumberFormat('cs-CZ', { style: 'currency', currency: 'CZK', minimumFractionDigits: 0 }).format(amount)
