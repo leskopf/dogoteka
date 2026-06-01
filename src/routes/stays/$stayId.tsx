@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useStay } from '@/hooks/useStays'
 import { NoteTimeline } from '@/components/stays/NoteTimeline'
@@ -5,6 +6,7 @@ import { PaymentPanel } from '@/components/stays/PaymentPanel'
 import { DogTagPill } from '@/components/dogs/DogTagPill'
 import { PageShell } from '@/components/layout/PageShell'
 import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
@@ -16,8 +18,36 @@ export const Route = createFileRoute('/stays/$stayId')({
 
 function StayDetailPage() {
   const { stayId } = Route.useParams()
-  const { stay, notes, loading, addNote, deleteNote } = useStay(stayId)
+  const { stay, notes, loading, refetch, addNote, deleteNote } = useStay(stayId)
   const navigate = useNavigate()
+
+  const [editingDates, setEditingDates] = useState(false)
+  const [editFrom, setEditFrom] = useState('')
+  const [editTo, setEditTo] = useState('')
+  const [savingDates, setSavingDates] = useState(false)
+
+  const openDateEdit = () => {
+    setEditFrom(stay!.date_from)
+    setEditTo(stay!.date_to)
+    setEditingDates(true)
+  }
+
+  const handleSaveDates = async () => {
+    if (!editFrom || !editTo || editFrom > editTo) {
+      toast.error('Neplatný termín')
+      return
+    }
+    setSavingDates(true)
+    const { error } = await supabase.from('stays').update({ date_from: editFrom, date_to: editTo }).eq('id', stayId)
+    if (error) {
+      toast.error('Chyba při ukládání termínu')
+    } else {
+      toast.success('Termín upraven')
+      setEditingDates(false)
+      refetch()
+    }
+    setSavingDates(false)
+  }
 
   if (loading) {
     return (
@@ -53,15 +83,29 @@ function StayDetailPage() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Pobyt — {dog?.name}
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">
-              {formatDate(stay.date_from)} – {formatDate(stay.date_to)}
-              {isActive && (
-                <span className="ml-2 inline-flex items-center gap-1 text-sm font-medium text-green-600 dark:text-green-400">
-                  <span className="size-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
-                  Probíhá
-                </span>
-              )}
-            </p>
+            {editingDates ? (
+              <div className="mt-2 flex flex-wrap items-end gap-2">
+                <Input type="date" label="Od" value={editFrom} onChange={(e) => setEditFrom(e.target.value)} />
+                <Input type="date" label="Do" value={editTo} onChange={(e) => setEditTo(e.target.value)} />
+                <div className="flex gap-2 pb-0.5">
+                  <Button variant="primary" size="sm" loading={savingDates} onClick={handleSaveDates}>Uložit</Button>
+                  <Button variant="ghost" size="sm" onClick={() => setEditingDates(false)}>Zrušit</Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2">
+                {formatDate(stay.date_from)} – {formatDate(stay.date_to)}
+                {isActive && (
+                  <span className="inline-flex items-center gap-1 text-sm font-medium text-green-600 dark:text-green-400">
+                    <span className="size-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
+                    Probíhá
+                  </span>
+                )}
+                <Button variant="secondary" size="sm" onClick={openDateEdit}>
+                  Upravit termín
+                </Button>
+              </p>
+            )}
           </div>
           <Button variant="danger" size="sm" onClick={handleDelete}>Smazat termín</Button>
         </div>

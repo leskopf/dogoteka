@@ -33,6 +33,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
   const [generating, setGenerating] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [togglingPaid, setTogglingPaid] = useState<string | null>(null)
 
   const nights = Math.round(
     (new Date(dateTo).getTime() - new Date(dateFrom).getTime()) / 86400000,
@@ -40,6 +41,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
   const defaultRate = settings?.default_rate_czk ?? 0
   const defaultDeposit = Math.round(defaultRate * nights * 0.5)
   const defaultFinal = Math.round(defaultRate * nights)
+
 
   const openForm = (type: 'deposit' | 'final') => {
     setAddingType(type)
@@ -109,7 +111,8 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
       toast.success(`Faktura ${invoiceNumber} vygenerována`)
-    } catch {
+    } catch (err) {
+      console.error('PDF generation error:', err)
       toast.error('Chyba při generování faktury')
     } finally {
       refetch()
@@ -151,11 +154,24 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-    } catch {
+    } catch (err) {
+      console.error('PDF generation error:', err)
       toast.error('Chyba při stahování faktury')
     } finally {
       refetch()
       setGenerating(null)
+    }
+  }
+
+  const handleTogglePaid = async (payment: Payment) => {
+    setTogglingPaid(payment.id)
+    try {
+      const newPaidAt = payment.paid_at ? null : new Date().toISOString().split('T')[0]
+      await updatePayment(payment.id, { paid_at: newPaidAt })
+    } catch {
+      toast.error('Chyba při změně stavu platby')
+    } finally {
+      setTogglingPaid(null)
     }
   }
 
@@ -241,8 +257,17 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
                 <Button
                   variant="ghost"
                   size="sm"
+                  loading={togglingPaid === payment.id}
+                  disabled={togglingPaid === payment.id || deleting === payment.id || generating !== null}
+                  onClick={() => handleTogglePaid(payment)}
+                >
+                  {payment.paid_at ? 'Nezaplaceno' : 'Zaplaceno'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                  disabled={deleting === payment.id || generating !== null}
+                  disabled={deleting === payment.id || generating !== null || togglingPaid === payment.id}
                   loading={deleting === payment.id}
                   onClick={() => handleDelete(payment.id)}
                 >

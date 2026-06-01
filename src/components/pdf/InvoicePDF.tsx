@@ -1,19 +1,28 @@
-import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, Text, View, Image, StyleSheet, Font } from '@react-pdf/renderer'
 import type { Payment, Settings } from '@/lib/database.types'
 
+const origin = window.location.origin
+Font.register({
+  family: 'Roboto',
+  fonts: [
+    { src: `${origin}/fonts/Roboto-Regular.ttf`, fontWeight: 'normal' },
+    { src: `${origin}/fonts/Roboto-Bold.ttf`, fontWeight: 'bold' },
+  ],
+})
+
 const styles = StyleSheet.create({
-  page: { padding: 40, fontFamily: 'Helvetica', backgroundColor: '#ffffff' },
+  page: { padding: 40, fontFamily: 'Roboto', backgroundColor: '#ffffff' },
   header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
   headerLeft: { flex: 1 },
   headerRight: { flex: 1, alignItems: 'flex-end' },
-  invoiceTitle: { fontSize: 24, fontFamily: 'Helvetica-Bold', color: '#1e40af', marginBottom: 4 },
+  invoiceTitle: { fontSize: 24, fontFamily: 'Roboto', fontWeight: 'bold', color: '#1e40af', marginBottom: 4 },
   invoiceNumber: { fontSize: 11, color: '#374151', marginBottom: 2 },
   invoiceDate: { fontSize: 10, color: '#6b7280' },
   issuerLine: { fontSize: 10, color: '#374151', marginBottom: 2, textAlign: 'right' },
   section: { marginBottom: 16 },
   sectionTitle: {
     fontSize: 10,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Roboto', fontWeight: 'bold',
     color: '#6b7280',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -23,7 +32,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e5e7eb',
   },
   row: { flexDirection: 'row', marginBottom: 4 },
-  label: { width: 130, fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#374151' },
+  label: { width: 130, fontSize: 10, fontFamily: 'Roboto', fontWeight: 'bold', color: '#374151' },
   value: { flex: 1, fontSize: 10, color: '#374151' },
   tableRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
   tableDesc: { flex: 1, fontSize: 10, color: '#374151' },
@@ -36,8 +45,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
   },
-  tableTotalDesc: { flex: 1, fontSize: 11, fontFamily: 'Helvetica-Bold', color: '#111827' },
-  tableTotalAmount: { fontSize: 11, fontFamily: 'Helvetica-Bold', color: '#111827', textAlign: 'right' },
+  tableTotalDesc: { flex: 1, fontSize: 11, fontFamily: 'Roboto', fontWeight: 'bold', color: '#111827' },
+  tableTotalAmount: { fontSize: 11, fontFamily: 'Roboto', fontWeight: 'bold', color: '#111827', textAlign: 'right' },
   footer: {
     position: 'absolute',
     bottom: 30,
