@@ -36,7 +36,7 @@ export function useStay(stayId: string) {
     const [stayRes, notesRes] = await Promise.all([
       supabase
         .from('stays')
-        .select('*, dogs(id, name, breed, weight_kg, food_notes, medication, vet_name, vet_phone, dog_tags(*), dog_photos(*), owners(id, first_name, last_name, phone, phone_emergency, email))')
+        .select('*, dogs(id, name, breed, weight_kg, food_notes, medication, vet_name, vet_phone, dog_tags(*), dog_photos(*), owners(id, first_name, last_name, phone, phone_emergency, email, address))')
         .eq('id', stayId)
         .single(),
       supabase
