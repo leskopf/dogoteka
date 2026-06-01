@@ -181,7 +181,7 @@ function StayDetailPage() {
           dateFrom={stay.date_from}
           dateTo={stay.date_to}
           dogName={dog?.name ?? ''}
-          owner={owner ? { first_name: owner.first_name, last_name: owner.last_name, address: owner.address } : null}
+          owner={owner ? { first_name: owner.first_name, last_name: owner.last_name, address: owner.address, phone: owner.phone, email: owner.email } : null}
         />
       </div>
     </PageShell>

@@ -70,7 +70,7 @@ export interface InvoicePDFProps {
   payment: Payment
   stay: { date_from: string; date_to: string }
   dogName: string
-  owner: { first_name: string; last_name: string; address?: string | null } | null
+  owner: { first_name: string; last_name: string; address?: string | null; phone?: string | null; email?: string | null } | null
   settings: Settings
   qrDataUrl: string | null
 }
@@ -125,6 +125,18 @@ export function InvoicePDF({ payment, stay, dogName, owner, settings, qrDataUrl 
             <View style={styles.row}>
               <Text style={styles.label}>Adresa:</Text>
               <Text style={styles.value}>{owner.address}</Text>
+            </View>
+          )}
+          {owner?.phone && (
+            <View style={styles.row}>
+              <Text style={styles.label}>Telefon:</Text>
+              <Text style={styles.value}>{owner.phone}</Text>
+            </View>
+          )}
+          {owner?.email && (
+            <View style={styles.row}>
+              <Text style={styles.label}>E-mail:</Text>
+              <Text style={styles.value}>{owner.email}</Text>
             </View>
           )}
         </View>

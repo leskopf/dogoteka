@@ -17,7 +17,7 @@ interface PaymentPanelProps {
   dateFrom: string
   dateTo: string
   dogName: string
-  owner: { first_name: string; last_name: string; address?: string | null } | null
+  owner: { first_name: string; last_name: string; address?: string | null; phone?: string | null; email?: string | null } | null
 }
 
 export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: PaymentPanelProps) {
