@@ -73,9 +73,10 @@ export interface InvoicePDFProps {
   owner: { first_name: string; last_name: string; address?: string | null; phone?: string | null; email?: string | null } | null
   settings: Settings
   qrDataUrl: string | null
+  dueDate?: string
 }
 
-export function InvoicePDF({ payment, stay, dogName, owner, settings, qrDataUrl }: InvoicePDFProps) {
+export function InvoicePDF({ payment, stay, dogName, owner, settings, qrDataUrl, dueDate }: InvoicePDFProps) {
   const today = new Date().toLocaleDateString('cs-CZ')
   const dateFrom = new Date(stay.date_from).toLocaleDateString('cs-CZ')
   const dateTo = new Date(stay.date_to).toLocaleDateString('cs-CZ')
@@ -160,6 +161,12 @@ export function InvoicePDF({ payment, stay, dogName, owner, settings, qrDataUrl 
             <Text style={styles.label}>Typ platby:</Text>
             <Text style={styles.value}>{paymentTypeLabel}</Text>
           </View>
+          {dueDate && (
+            <View style={styles.row}>
+              <Text style={styles.label}>Splatnost:</Text>
+              <Text style={styles.value}>{new Date(dueDate).toLocaleDateString('cs-CZ')}</Text>
+            </View>
+          )}
         </View>
 
         {/* Tabulka platby */}

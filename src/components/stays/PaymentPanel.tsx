@@ -10,6 +10,7 @@ import { InvoicePDF } from '@/components/pdf/InvoicePDF'
 import { PaymentStatusBadge } from '@/components/finance/PaymentStatusBadge'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Modal } from '@/components/ui/Modal'
 import type { Payment } from '@/lib/database.types'
 
 interface PaymentPanelProps {
@@ -30,6 +31,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
   const [formDate, setFormDate] = useState('')
   const [formNotPaid, setFormNotPaid] = useState(false)
   const [formNotes, setFormNotes] = useState('')
+  const [formDueDate, setFormDueDate] = useState('')
   const [generating, setGenerating] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -51,24 +53,32 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
     setFormDate(new Date().toISOString().split('T')[0])
     setFormNotPaid(false)
     setFormNotes('')
+    const d = new Date()
+    d.setDate(d.getDate() + 14)
+    setFormDueDate(d.toISOString().split('T')[0])
   }
 
   const handleAddPayment = async () => {
     setSubmitting(true)
     try {
+      const notesWithDueDate = formDueDate
+        ? `due_date:${formDueDate}${formNotes ? '|' + formNotes : ''}`
+        : formNotes || null
+
       await addPayment({
         stay_id: stayId,
         type: addingType!,
         amount: parseFloat(formAmount) || 0,
         paid_at: formNotPaid ? null : formDate || null,
         invoice_number: null,
-        notes: formNotes || null,
+        notes: notesWithDueDate,
       })
       setAddingType(null)
       setFormAmount('')
       setFormDate('')
       setFormNotPaid(false)
       setFormNotes('')
+      setFormDueDate('')
     } catch {
       toast.error('Chyba při ukládání platby')
     } finally {
@@ -77,10 +87,23 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
   }
 
   const openInvoiceForm = (payment: Payment) => {
-    const d = new Date()
-    d.setDate(d.getDate() + 14)
+    let dueDate = ''
+
+    if (payment.notes) {
+      const match = payment.notes.match(/^due_date:(\d{4}-\d{2}-\d{2})/)
+      if (match) {
+        dueDate = match[1]
+      }
+    }
+
+    if (!dueDate) {
+      const d = new Date()
+      d.setDate(d.getDate() + 14)
+      dueDate = d.toISOString().split('T')[0]
+    }
+
     setInvoicingPayment(payment)
-    setInvoiceDueDate(d.toISOString().split('T')[0])
+    setInvoiceDueDate(dueDate)
   }
 
   const handleGenerateInvoice = async (payment: Payment, dueDate: string) => {
@@ -110,7 +133,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
           owner={owner}
           settings={settings}
           qrDataUrl={qrDataUrl}
-          dueDate={dueDate || undefined}
+          dueDate={dueDate}
         />,
       ).toBlob()
       const url = URL.createObjectURL(blob)
@@ -239,7 +262,9 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
                   </span>
                 )}
                 {payment.notes && (
-                  <span className="text-xs text-gray-500 dark:text-gray-400">{payment.notes}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {payment.notes.replace(/^due_date:\d{4}-\d{2}-\d{2}\|?/, '')}
+                  </span>
                 )}
               </div>
 
@@ -260,7 +285,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
                     size="sm"
                     loading={generating === payment.id}
                     disabled={generating !== null}
-                    onClick={() => handleGenerateInvoice(payment)}
+                    onClick={() => openInvoiceForm(payment)}
                   >
                     Vygenerovat fakturu
                   </Button>
@@ -348,6 +373,13 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
           />
 
           <Input
+            type="date"
+            label="Datum splatnosti faktury"
+            value={formDueDate}
+            onChange={(e) => setFormDueDate(e.target.value)}
+          />
+
+          <Input
             type="text"
             label="Poznámka (volitelné)"
             value={formNotes}
@@ -364,6 +396,52 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
           </div>
         </div>
       )}
+
+      <Modal
+        open={invoicingPayment !== null}
+        onClose={() => {
+          setInvoicingPayment(null)
+          setInvoiceDueDate('')
+        }}
+        title="Splatnost faktury"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Vyberte datum splatnosti pro fakturu:
+          </p>
+          <Input
+            type="date"
+            label="Datum splatnosti"
+            value={invoiceDueDate}
+            onChange={(e) => setInvoiceDueDate(e.target.value)}
+          />
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setInvoicingPayment(null)
+                setInvoiceDueDate('')
+              }}
+            >
+              Zrušit
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={generating === invoicingPayment?.id}
+              disabled={generating !== null || !invoiceDueDate}
+              onClick={async () => {
+                if (invoicingPayment) {
+                  await handleGenerateInvoice(invoicingPayment, invoiceDueDate)
+                }
+              }}
+            >
+              Vygenerovat fakturu
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
