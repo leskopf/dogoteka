@@ -34,6 +34,8 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
   const [submitting, setSubmitting] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [togglingPaid, setTogglingPaid] = useState<string | null>(null)
+  const [invoicingPayment, setInvoicingPayment] = useState<Payment | null>(null)
+  const [invoiceDueDate, setInvoiceDueDate] = useState('')
 
   const nights = Math.round(
     (new Date(dateTo).getTime() - new Date(dateFrom).getTime()) / 86400000,
@@ -74,11 +76,19 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
     }
   }
 
-  const handleGenerateInvoice = async (payment: Payment) => {
+  const openInvoiceForm = (payment: Payment) => {
+    const d = new Date()
+    d.setDate(d.getDate() + 14)
+    setInvoicingPayment(payment)
+    setInvoiceDueDate(d.toISOString().split('T')[0])
+  }
+
+  const handleGenerateInvoice = async (payment: Payment, dueDate: string) => {
     if (!settings) {
       toast.error('Nastavení nejsou dostupná, načtěte stránku znovu')
       return
     }
+    setInvoicingPayment(null)
     setGenerating(payment.id)
     try {
       const invoiceNumber = await generateInvoiceNumber()
@@ -100,6 +110,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
           owner={owner}
           settings={settings}
           qrDataUrl={qrDataUrl}
+          dueDate={dueDate || undefined}
         />,
       ).toBlob()
       const url = URL.createObjectURL(blob)
