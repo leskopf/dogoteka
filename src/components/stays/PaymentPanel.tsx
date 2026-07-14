@@ -17,11 +17,13 @@ interface PaymentPanelProps {
   stayId: string
   dateFrom: string
   dateTo: string
+  timeFrom?: string | null
+  timeTo?: string | null
   dogName: string
   owner: { first_name: string; last_name: string; address?: string | null; phone?: string | null; email?: string | null } | null
 }
 
-export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: PaymentPanelProps) {
+export function PaymentPanel({ stayId, dateFrom, dateTo, timeFrom, timeTo, dogName, owner }: PaymentPanelProps) {
   const { payments, loading, addPayment, updatePayment, deletePayment, refetch } =
     usePaymentsForStay(stayId)
   const { settings } = useSettings()
@@ -42,9 +44,10 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
   const nights = Math.round(
     (new Date(dateTo).getTime() - new Date(dateFrom).getTime()) / 86400000,
   )
+  const effectiveUnits = nights === 0 ? 0.5 : nights
   const defaultRate = settings?.default_rate_czk ?? 0
-  const defaultDeposit = Math.round(defaultRate * nights * 0.5)
-  const defaultFinal = Math.round(defaultRate * nights)
+  const defaultDeposit = Math.round(defaultRate * effectiveUnits * 0.5)
+  const defaultFinal = Math.round(defaultRate * effectiveUnits)
 
 
   const openForm = (type: 'deposit' | 'final') => {
@@ -61,17 +64,14 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
   const handleAddPayment = async () => {
     setSubmitting(true)
     try {
-      const notesWithDueDate = formDueDate
-        ? `due_date:${formDueDate}${formNotes ? '|' + formNotes : ''}`
-        : formNotes || null
-
       await addPayment({
         stay_id: stayId,
         type: addingType!,
         amount: parseFloat(formAmount) || 0,
         paid_at: formNotPaid ? null : formDate || null,
         invoice_number: null,
-        notes: notesWithDueDate,
+        notes: formNotes || null,
+        due_date: formDueDate || null,
       })
       setAddingType(null)
       setFormAmount('')
@@ -87,14 +87,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
   }
 
   const openInvoiceForm = (payment: Payment) => {
-    let dueDate = ''
-
-    if (payment.notes) {
-      const match = payment.notes.match(/^due_date:(\d{4}-\d{2}-\d{2})/)
-      if (match) {
-        dueDate = match[1]
-      }
-    }
+    let dueDate = payment.due_date || ''
 
     if (!dueDate) {
       const d = new Date()
@@ -117,18 +110,18 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
       const invoiceNumber = await generateInvoiceNumber()
       await updatePayment(payment.id, { invoice_number: invoiceNumber })
       let qrDataUrl: string | null = null
-      if (settings.bank_iban) {
-        const spd = buildSpdString({
-          iban: settings.bank_iban,
-          amount: payment.amount,
-          invoiceNumber,
-        })
-        qrDataUrl = await generateQrDataUrl(spd)
-      }
+      const qrIban = settings.bank_iban || 'CZ0000000000000000000000'
+      const spd = buildSpdString({
+        iban: qrIban,
+        amount: payment.amount,
+        invoiceNumber,
+        message: `${dogName} ${invoiceNumber}`,
+      })
+      qrDataUrl = await generateQrDataUrl(spd)
       const blob = await pdf(
         <InvoicePDF
           payment={{ ...payment, invoice_number: invoiceNumber }}
-          stay={{ date_from: dateFrom, date_to: dateTo }}
+          stay={{ date_from: dateFrom, date_to: dateTo, time_from: timeFrom, time_to: timeTo }}
           dogName={dogName}
           owner={owner}
           settings={settings}
@@ -162,18 +155,20 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
     setGenerating(payment.id)
     try {
       let qrDataUrl: string | null = null
-      if (settings.bank_iban && payment.invoice_number) {
+      if (payment.invoice_number) {
+        const qrIban = settings.bank_iban || 'CZ0000000000000000000000'
         const spd = buildSpdString({
-          iban: settings.bank_iban,
+          iban: qrIban,
           amount: payment.amount,
           invoiceNumber: payment.invoice_number,
+          message: `${dogName} ${payment.invoice_number}`,
         })
         qrDataUrl = await generateQrDataUrl(spd)
       }
       const blob = await pdf(
         <InvoicePDF
           payment={payment}
-          stay={{ date_from: dateFrom, date_to: dateTo }}
+          stay={{ date_from: dateFrom, date_to: dateTo, time_from: timeFrom, time_to: timeTo }}
           dogName={dogName}
           owner={owner}
           settings={settings}
@@ -246,7 +241,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
             >
               <div className="flex flex-col gap-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <PaymentStatusBadge type={payment.type} paid={payment.paid_at !== null} />
+                  <PaymentStatusBadge type={payment.type as 'deposit' | 'final'} paid={payment.paid_at !== null} />
                   <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                     {formatCzk(payment.amount)}
                   </span>
@@ -262,9 +257,7 @@ export function PaymentPanel({ stayId, dateFrom, dateTo, dogName, owner }: Payme
                   </span>
                 )}
                 {payment.notes && (
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {payment.notes.replace(/^due_date:\d{4}-\d{2}-\d{2}\|?/, '')}
-                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{payment.notes}</span>
                 )}
               </div>
 

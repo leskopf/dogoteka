@@ -32,6 +32,17 @@ export function formatDateShort(dateStr: string): string {
   })
 }
 
+export function formatStayRange(stay: { date_from: string; date_to: string; time_from?: string | null; time_to?: string | null }): string {
+  const isSameDay = stay.date_from === stay.date_to
+  if (!isSameDay) {
+    return `${formatDate(stay.date_from)} – ${formatDate(stay.date_to)}`
+  }
+  if (stay.time_from && stay.time_to) {
+    return `${formatDate(stay.date_from)}, ${stay.time_from}–${stay.time_to}`
+  }
+  return formatDate(stay.date_from)
+}
+
 export function today(): string {
   return new Date().toISOString().split('T')[0]
 }

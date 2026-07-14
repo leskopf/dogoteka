@@ -68,7 +68,7 @@ function formatCzk(amount: number): string {
 
 export interface InvoicePDFProps {
   payment: Payment
-  stay: { date_from: string; date_to: string }
+  stay: { date_from: string; date_to: string; time_from?: string | null; time_to?: string | null }
   dogName: string
   owner: { first_name: string; last_name: string; address?: string | null; phone?: string | null; email?: string | null } | null
   settings: Settings
@@ -83,6 +83,7 @@ export function InvoicePDF({ payment, stay, dogName, owner, settings, qrDataUrl,
   const nights = Math.round(
     (new Date(stay.date_to).getTime() - new Date(stay.date_from).getTime()) / 86400000,
   )
+  const nightsLabel = nights === 0 ? (stay.time_from && stay.time_to ? `Částečný den (${stay.time_from}–${stay.time_to})` : 'Částečný den') : `${nights} ${nights === 1 ? 'noc' : nights < 5 ? 'noci' : 'nocí'}`
   const paymentTypeLabel = payment.type === 'deposit' ? 'Záloha za pobyt' : 'Doplatek za pobyt'
   const ownerName = owner ? `${owner.first_name} ${owner.last_name}` : 'Neuvedeno'
   const hasBank = settings.bank_account || settings.bank_iban
@@ -111,6 +112,15 @@ export function InvoicePDF({ payment, stay, dogName, owner, settings, qrDataUrl,
             )}
             {settings.issuer_dic && (
               <Text style={styles.issuerLine}>DIČ: {settings.issuer_dic}</Text>
+            )}
+            {settings.issuer_phone && (
+              <Text style={styles.issuerLine}>{settings.issuer_phone}</Text>
+            )}
+            {settings.issuer_email && (
+              <Text style={styles.issuerLine}>{settings.issuer_email}</Text>
+            )}
+            {settings.issuer_web && (
+              <Text style={styles.issuerLine}>{settings.issuer_web}</Text>
             )}
           </View>
         </View>
@@ -155,7 +165,7 @@ export function InvoicePDF({ payment, stay, dogName, owner, settings, qrDataUrl,
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Počet nocí:</Text>
-            <Text style={styles.value}>{nights}</Text>
+            <Text style={styles.value}>{nightsLabel}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Typ platby:</Text>

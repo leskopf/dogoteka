@@ -6,7 +6,7 @@ import { StatCard } from '@/components/dashboard/StatCard'
 import { CapacityBar } from '@/components/dashboard/CapacityBar'
 import { DogTagPill } from '@/components/dogs/DogTagPill'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { getPublicPhotoUrl, formatDateShort } from '@/lib/utils'
+import { getPublicPhotoUrl, formatStayRange } from '@/lib/utils'
 
 export const Route = createFileRoute('/')({
   component: DashboardPage,
@@ -99,7 +99,7 @@ function DogMiniCard({ stay }: { stay: any }) {
       <div className="min-w-0">
         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{dog?.name}</p>
         <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
-          {formatDateShort(stay.date_from)} – {formatDateShort(stay.date_to)}
+          {formatStayRange(stay)}
         </p>
       </div>
       {dog?.dog_tags?.slice(0, 1).map((tag: any) => (

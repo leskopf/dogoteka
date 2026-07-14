@@ -23,6 +23,8 @@ function NewStayPage() {
         dog_id: values.dog_id,
         date_from: values.date_from,
         date_to: values.date_to,
+        time_from: values.time_from || null,
+        time_to: values.time_to || null,
         notes: values.notes || null,
       })
       .select()

@@ -9,6 +9,7 @@ type PaymentInsert = {
   paid_at?: string | null
   invoice_number?: string | null
   notes?: string | null
+  due_date?: string | null
 }
 
 type PaymentUpdate = Partial<Omit<PaymentInsert, 'stay_id'>>
@@ -18,6 +19,8 @@ export type PaymentWithStay = Payment & {
     id: string
     date_from: string
     date_to: string
+    time_from: string | null
+    time_to: string | null
     dogs: {
       id: string
       name: string
@@ -66,7 +69,7 @@ export function usePaymentsForStay(stayId: string) {
     setPayments((prev) => prev.filter((p) => p.id !== id))
     const { error } = await supabase.from('payments').delete().eq('id', id)
     if (error && item) {
-      setPayments((prev) => [...prev, item].sort((a, b) => a.created_at.localeCompare(b.created_at)))
+      setPayments((prev) => [...prev, item].sort((a, b) => (a.created_at ?? '').localeCompare(b.created_at ?? '')))
     }
   }
 
@@ -83,7 +86,7 @@ export function useAllPayments() {
     setError(null)
     const { data, error: err } = await supabase
       .from('payments')
-      .select('*, stays(id, date_from, date_to, dogs(id, name, owners(id, first_name, last_name)))')
+      .select('*, stays(id, date_from, date_to, time_from, time_to, dogs(id, name, owners(id, first_name, last_name)))')
       .order('created_at', { ascending: false })
     if (err) {
       setError(err.message)

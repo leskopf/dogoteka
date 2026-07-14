@@ -24,11 +24,15 @@ function StayDetailPage() {
   const [editingDates, setEditingDates] = useState(false)
   const [editFrom, setEditFrom] = useState('')
   const [editTo, setEditTo] = useState('')
+  const [editTimeFrom, setEditTimeFrom] = useState('')
+  const [editTimeTo, setEditTimeTo] = useState('')
   const [savingDates, setSavingDates] = useState(false)
 
   const openDateEdit = () => {
     setEditFrom(stay!.date_from)
     setEditTo(stay!.date_to)
+    setEditTimeFrom(stay!.time_from || '')
+    setEditTimeTo(stay!.time_to || '')
     setEditingDates(true)
   }
 
@@ -37,8 +41,17 @@ function StayDetailPage() {
       toast.error('Neplatný termín')
       return
     }
+    if (editFrom === editTo && (!editTimeFrom || !editTimeTo || editTimeTo <= editTimeFrom)) {
+      toast.error('Pro pobyt v jeden den zadejte čas příjezdu a odjezdu')
+      return
+    }
     setSavingDates(true)
-    const { error } = await supabase.from('stays').update({ date_from: editFrom, date_to: editTo }).eq('id', stayId)
+    const { error } = await supabase.from('stays').update({
+      date_from: editFrom,
+      date_to: editTo,
+      time_from: editFrom === editTo ? editTimeFrom : null,
+      time_to: editFrom === editTo ? editTimeTo : null,
+    }).eq('id', stayId)
     if (error) {
       toast.error('Chyba při ukládání termínu')
     } else {
@@ -84,10 +97,18 @@ function StayDetailPage() {
               Pobyt — {dog?.name}
             </h1>
             {editingDates ? (
-              <div className="mt-2 flex flex-wrap items-end gap-2">
-                <Input type="date" label="Od" value={editFrom} onChange={(e) => setEditFrom(e.target.value)} />
-                <Input type="date" label="Do" value={editTo} onChange={(e) => setEditTo(e.target.value)} />
-                <div className="flex gap-2 pb-0.5">
+              <div className="mt-2 space-y-2">
+                <div className="flex flex-wrap items-end gap-2">
+                  <Input type="date" label="Od" value={editFrom} onChange={(e) => setEditFrom(e.target.value)} />
+                  <Input type="date" label="Do" value={editTo} onChange={(e) => setEditTo(e.target.value)} />
+                </div>
+                {editFrom === editTo && (
+                  <div className="flex flex-wrap items-end gap-2">
+                    <Input type="time" label="Čas od" value={editTimeFrom} onChange={(e) => setEditTimeFrom(e.target.value)} />
+                    <Input type="time" label="Čas do" value={editTimeTo} onChange={(e) => setEditTimeTo(e.target.value)} />
+                  </div>
+                )}
+                <div className="flex gap-2">
                   <Button variant="primary" size="sm" loading={savingDates} onClick={handleSaveDates}>Uložit</Button>
                   <Button variant="ghost" size="sm" onClick={() => setEditingDates(false)}>Zrušit</Button>
                 </div>
@@ -180,6 +201,8 @@ function StayDetailPage() {
           stayId={stayId}
           dateFrom={stay.date_from}
           dateTo={stay.date_to}
+          timeFrom={stay.time_from}
+          timeTo={stay.time_to}
           dogName={dog?.name ?? ''}
           owner={owner ? { first_name: owner.first_name, last_name: owner.last_name, address: owner.address, phone: owner.phone, email: owner.email } : null}
         />

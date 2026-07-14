@@ -63,7 +63,7 @@ export function NoteTimeline({ notes, onAdd, onDelete }: NoteTimelineProps) {
               <div className="flex-1 min-w-0 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
                 <div className="flex items-start justify-between gap-2">
                   <time className="text-xs text-gray-400 dark:text-gray-500 shrink-0">
-                    {formatDate(note.created_at)}
+                    {formatDate(note.created_at!)}
                   </time>
                   <button
                     onClick={() => onDelete(note.id)}

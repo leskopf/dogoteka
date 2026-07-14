@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { Button } from '@/components/ui/Button'
 import { PaymentStatusBadge } from '@/components/finance/PaymentStatusBadge'
-import { formatDate, formatCzk } from '@/lib/utils'
+import { formatCzk, formatStayRange } from '@/lib/utils'
 import type { PaymentWithStay } from '@/hooks/useFinance'
 
 interface StayPaymentRowProps {
@@ -14,7 +14,7 @@ export function StayPaymentRow({ payment }: StayPaymentRowProps) {
       {/* Vlevo: info o pobytu */}
       <div className="min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <PaymentStatusBadge type={payment.type} paid={!!payment.paid_at} />
+          <PaymentStatusBadge type={payment.type as 'deposit' | 'final'} paid={!!payment.paid_at} />
           <span className="font-semibold text-gray-900 dark:text-gray-100">
             {payment.stays.dogs.name}
           </span>
@@ -23,7 +23,7 @@ export function StayPaymentRow({ payment }: StayPaymentRowProps) {
           </span>
         </div>
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-          {formatDate(payment.stays.date_from)} – {formatDate(payment.stays.date_to)}
+          {formatStayRange(payment.stays)}
           {payment.invoice_number && ` · Faktura č. ${payment.invoice_number}`}
         </p>
       </div>

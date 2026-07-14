@@ -4,10 +4,11 @@ export function buildSpdString(params: {
   iban: string
   amount: number
   invoiceNumber: string
+  message?: string
 }): string {
   const am = params.amount.toFixed(2)
   const vs = params.invoiceNumber.replace(/\D/g, '').slice(0, 10)
-  const msg = `Faktura ${params.invoiceNumber}`.slice(0, 60)
+  const msg = (params.message || `Faktura ${params.invoiceNumber}`).slice(0, 60)
   return `SPD*1.0*ACC:${params.iban}*AM:${am}*CC:CZK*MSG:${msg}*X-VS:${vs}`
 }
 

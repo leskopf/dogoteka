@@ -22,7 +22,7 @@ export function useSession() {
       .select('max_capacity')
       .single()
       .then(({ data }) => {
-        if (data) setMaxCapacity(data.max_capacity)
+        if (data?.max_capacity) setMaxCapacity(data.max_capacity)
       })
   }, [setMaxCapacity])
 }

@@ -89,12 +89,14 @@ function FinancePage() {
           <FinanceStatCard
             title="Čekající zálohy"
             value={String(summary.pendingDeposits)}
+            subtitle={formatCzk(summary.pendingDepositsAmount)}
             icon="⏳"
             variant={summary.pendingDeposits > 0 ? 'warning' : 'default'}
           />
           <FinanceStatCard
             title="Čekající doplatky"
             value={String(summary.pendingFinals)}
+            subtitle={formatCzk(summary.pendingFinalsAmount)}
             icon="📋"
             variant={summary.pendingFinals > 0 ? 'warning' : 'default'}
           />

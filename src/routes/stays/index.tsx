@@ -4,7 +4,7 @@ import { useStays } from '@/hooks/useStays'
 import { PageShell } from '@/components/layout/PageShell'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { formatDateShort, today } from '@/lib/utils'
+import { formatStayRange, today } from '@/lib/utils'
 
 export const Route = createFileRoute('/stays/')({
   component: StaysPage,
@@ -93,7 +93,7 @@ function StaysPage() {
                   <div className="min-w-0">
                     <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">{dog?.name}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {formatDateShort(stay.date_from)} – {formatDateShort(stay.date_to)}
+                      {formatStayRange(stay)}
                     </p>
                   </div>
                   <div className="shrink-0">

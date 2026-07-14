@@ -30,6 +30,9 @@ function SettingsPage() {
       issuer_address: '',
       issuer_ico: '',
       issuer_dic: '',
+      issuer_phone: '',
+      issuer_email: '',
+      issuer_web: '',
       bank_account: '',
       bank_iban: '',
       bank_name: '',
@@ -46,6 +49,9 @@ function SettingsPage() {
         issuer_address: settings.issuer_address ?? '',
         issuer_ico: settings.issuer_ico ?? '',
         issuer_dic: settings.issuer_dic ?? '',
+        issuer_phone: settings.issuer_phone ?? '',
+        issuer_email: settings.issuer_email ?? '',
+        issuer_web: settings.issuer_web ?? '',
         bank_account: settings.bank_account ?? '',
         bank_iban: settings.bank_iban ?? '',
         bank_name: settings.bank_name ?? '',
@@ -150,6 +156,25 @@ function SettingsPage() {
                 hint="Vyplňte jen pokud jste plátce DPH"
                 error={errors.issuer_dic?.message}
                 {...register('issuer_dic')}
+              />
+              <Input
+                label="Telefon"
+                type="tel"
+                error={errors.issuer_phone?.message}
+                {...register('issuer_phone')}
+              />
+              <Input
+                label="E-mail"
+                type="email"
+                error={errors.issuer_email?.message}
+                {...register('issuer_email')}
+              />
+              <Input
+                label="Web"
+                type="url"
+                placeholder="https://..."
+                error={errors.issuer_web?.message}
+                {...register('issuer_web')}
               />
               <Input
                 label="Číslo účtu"
