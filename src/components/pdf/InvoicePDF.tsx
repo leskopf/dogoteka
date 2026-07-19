@@ -83,7 +83,10 @@ export function InvoicePDF({ payment, stay, dogName, owner, settings, qrDataUrl,
   const nights = Math.round(
     (new Date(stay.date_to).getTime() - new Date(stay.date_from).getTime()) / 86400000,
   )
-  const nightsLabel = nights === 0 ? (stay.time_from && stay.time_to ? `Částečný den (${stay.time_from}–${stay.time_to})` : 'Částečný den') : `${nights} ${nights === 1 ? 'noc' : nights < 5 ? 'noci' : 'nocí'}`
+  let nightsLabel = nights === 0 ? 'Částečný den' : `${nights} ${nights === 1 ? 'noc' : nights < 5 ? 'noci' : 'nocí'}`
+  if (stay.time_from && stay.time_to) {
+    nightsLabel += ` (${stay.time_from}–${stay.time_to})`
+  }
   const paymentTypeLabel = payment.type === 'deposit' ? 'Záloha za pobyt' : 'Doplatek za pobyt'
   const ownerName = owner ? `${owner.first_name} ${owner.last_name}` : 'Neuvedeno'
   const hasBank = settings.bank_account || settings.bank_iban

@@ -35,7 +35,6 @@ export function StayForm({ defaultValues, onSubmit, submitting }: StayFormProps)
 
   const dateFrom = watch('date_from')
   const dateTo = watch('date_to')
-  const isSameDay = dateFrom && dateTo && dateFrom === dateTo
 
   const dogOptions = dogs.map((d) => {
     const parts = [d.breed, d.name].filter(Boolean).join(' — ')
@@ -71,22 +70,20 @@ export function StayForm({ defaultValues, onSubmit, submitting }: StayFormProps)
           {...register('date_to')}
         />
       </div>
-      {isSameDay && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input
-            label="Čas příjezdu *"
-            type="time"
-            error={errors.time_from?.message}
-            {...register('time_from')}
-          />
-          <Input
-            label="Čas odjezdu *"
-            type="time"
-            error={errors.time_to?.message}
-            {...register('time_to')}
-          />
-        </div>
-      )}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Input
+          label="Čas příjezdu"
+          type="time"
+          error={errors.time_from?.message}
+          {...register('time_from')}
+        />
+        <Input
+          label="Čas odjezdu"
+          type="time"
+          error={errors.time_to?.message}
+          {...register('time_to')}
+        />
+      </div>
       <Textarea label="Poznámky" rows={3} {...register('notes')} />
       <div className="flex justify-end">
         <Button type="submit" loading={submitting}>
